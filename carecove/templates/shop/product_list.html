@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shop Sea Moss Products - CareCove{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="section-title">Sea Moss Products</h1>
+            <p class="section-subtitle">
+                Discover our complete range of premium Sea Moss products from Zanzibar, Tanzania.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Filter Products</h5>
+                    
+                    <!-- Category Filter -->
+                    <div class="mb-4">
+                        <h6>Categories</h6>
+                        <div class="list-group list-group-flush">
+                            <a href="{% url 'shop:product_list' %}" 
+                               class="list-group-item list-group-item-action {% if not current_category %}active{% endif %}">
+                                All Products
+                            </a>
+                            {% for category in categories %}
+                            <a href="{% url 'shop:category_detail' category.slug %}" 
+                               class="list-group-item list-group-item-action {% if current_category == category.slug %}active{% endif %}">
+                                {{ category.name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Product Type Filter -->
+                    <div class="mb-4">
+                        <h6>Product Type</h6>
+                        <div class="list-group list-group-flush">
+                            <a href="{% url 'shop:product_list' %}" 
+                               class="list-group-item list-group-item-action {% if not current_type %}active{% endif %}">
+                                All Types
+                            </a>
+                            {% for type_code, type_name in product_types %}
+                            <a href="{% url 'shop:product_list' %}?type={{ type_code }}" 
+                               class="list-group-item list-group-item-action {% if current_type == type_code %}active{% endif %}">
+                                {{ type_name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Price Filter -->
+                    <div class="mb-4">
+                        <h6>Price Range</h6>
+                        <form method="GET" class="price-filter-form">
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" name="min_price" class="form-control form-control-sm" 
+                                           placeholder="Min" value="{{ request.GET.min_price }}">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" name="max_price" class="form-control form-control-sm" 
+                                           placeholder="Max" value="{{ request.GET.max_price }}">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm w-100 mt-2">Apply</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <!-- Sort and View Options -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <span class="text-muted">
+                        {% if page_obj %}
+                            Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} products
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Sort Options -->
+                    <select class="form-select form-select-sm" id="sortSelect" style="width: auto;">
+                        <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Name A-Z</option>
+                        <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest</option>
+                        <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            {% if page_obj %}
+            <div class="product-grid">
+                {% for product in page_obj %}
+                <div class="product-card card" data-category="{{ product.category.slug }}">
+                    <div class="product-image">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="card-img-top">
+                        {% else %}
+                            <img src="https://i.pinimg.com/originals/83/5f/9f/835f9ffac0b1dfbb1c0860a03e16d201.png" alt="{{ product.name }}" class="card-img-top">
+                        {% endif %}
+                        {% if product.is_on_sale %}
+                            <div class="product-badge">-{{ product.sale_percentage }}%</div>
+                        {% endif %}
+                        {% if not product.is_in_stock %}
+                            <div class="product-badge bg-secondary">Out of Stock</div>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h5 class="product-title">{{ product.name }}</h5>
+                        <p class="product-description text-muted">{{ product.description|truncatewords:15 }}</p>
+                        <div class="product-price">
+                            {% if product.is_on_sale %}
+                                <span class="original-price">${{ product.compare_at_price }}</span>
+                            {% endif %}
+                            ${{ product.price }}
+                        </div>
+                        {% if product.review_count > 0 %}
+                        <div class="product-rating">
+                            <span class="stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.average_rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                            <span class="rating-text">({{ product.review_count }})</span>
+                        </div>
+                        {% endif %}
+                        <div class="product-actions">
+                            <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary w-100 mb-2">View Details</a>
+                            {% if product.is_in_stock %}
+                            <form class="add-to-cart-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
+                            </form>
+                            {% else %}
+                            <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Product pagination" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4>No products found</h4>
+                <p class="text-muted">Try adjusting your filters or search criteria.</p>
+                <a href="{% url 'shop:product_list' %}" class="btn btn-primary">View All Products</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sort functionality
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const url = new URL(window.location);
+            url.searchParams.set('sort', this.value);
+            window.location.href = url.toString();
+        });
+    }
+});
+</script>
+{% endblock %}
+
+<style>
+    .product-info-section {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="tab-pane fade show active" id="description" role="tabpanel">
+    <div class="product-info-section">
+        {{ product.description|safe }}
+    </div>
+</div>
+
+<div class="tab-pane fade" id="reviews" role="tabpanel">
+    <div class="product-info-section">
+        <!-- Reviews content -->
+        <!-- ...existing code... -->
+    </div>
+</div>

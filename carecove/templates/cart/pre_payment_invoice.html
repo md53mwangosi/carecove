@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load cart_extras static %}
+
+{% block title %}Invoice #{{ order.order_number }} - CareCove{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">Invoice #{{ order.order_number }}</h3>
+                        <span class="badge bg-warning text-dark fs-6">Pending Payment</span>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Payment Alert -->
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle me-2"></i>Payment Required</h5>
+                        <p class="mb-0">Please review your invoice below and proceed to payment. Your order will be processed once payment is confirmed.</p>
+                    </div>
+
+                    <!-- Invoice Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Invoice Information</h5>
+                            <p><strong>Invoice #:</strong> {{ order.order_number }}</p>
+                            <p><strong>Invoice Date:</strong> {{ order.created_at|date:"F d, Y H:i" }}</p>
+                            <p><strong>Due Date:</strong> {{ order.created_at|add_days:7|date:"F d, Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Customer Information</h5>
+                            <p><strong>{{ order.billing_first_name }} {{ order.billing_last_name }}</strong><br>
+                            {{ order.email }}<br>
+                            {{ order.billing_phone }}<br>
+                            {{ order.billing_address_1 }}<br>
+                            {% if order.billing_address_2 %}{{ order.billing_address_2 }}<br>{% endif %}
+                            {{ order.billing_city }}, {{ order.billing_state }} {{ order.billing_postal_code }}<br>
+                            {{ order.billing_country }}</p>
+                        </div>
+                            {{ order.billing_phone }}<br>
+                            {{ order.billing_address_1 }}<br>
+                            {% if order.billing_address_2 %}{{ order.billing_address_2 }}<br>{% endif %}
+                            {{ order.billing_city }}, {{ order.billing_state }} {{ order.billing_postal_code }}<br>
+                            {{ order.billing_country }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <h5>Order Items</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Description</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ item.product.name }}</strong>
+                                        {% if item.variant %}
+                                            <br><small class="text-muted">{{ item.variant.name }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.product.description|truncatewords:10 }}</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-end">TZS {{ item.price|floatformat:2 }}</td>
+                                    <td class="text-end">TZS {{ item.total|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Subtotal:</strong></td>
+                                    <td class="text-end">TZS {{ order.subtotal|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Shipping:</strong></td>
+                                    <td class="text-end">
+                                        {% if order.shipping_cost == 0 %}
+                                            Free
+                                        {% else %}
+                                            TZS {{ order.shipping_cost|floatformat:2 }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if order.tax > 0 %}
+                                <tr>
+                                    <td><strong>Tax:</strong></td>
+                                    <td class="text-end">TZS {{ order.tax|floatformat:2 }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr class="table-light">
+                                    <td><strong>Total Amount Due:</strong></td>
+                                    <td class="text-end"><strong>TZS {{ order.total|floatformat:2 }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if order.order_notes %}
+                    <div class="alert alert-light">
+                        <h6>Order Notes:</h6>
+                        <p class="mb-0">{{ order.order_notes }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="text-center mt-4">
+                        <a href="{% url 'cart:download_pre_payment_invoice' order.id %}?format=pdf" class="btn btn-primary me-3">
+                            <i class="fas fa-download me-2"></i>Download Invoice PDF
+                        </a>
+                        <form method="post" action="{% url 'cart:process_payment' %}" class="d-inline me-3">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                            </button>
+                        </form>
+                        <a href="{% url 'shop:home' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CareCove - Premium Sea Moss from Zanzibar{% endblock %}
+
+{% block content %}
+<!-- Main Products Section - Beach Background -->
+<section class="main-products-section">
+    <div class="beach-overlay"></div>
+    <div class="container">
+        <!-- <div class="products-header text-center">
+            <h1 class="main-title">Premium Sea Moss from Zanzibar</h1>
+            <p class="main-subtitle">
+                Discover our authentic Sea Moss products, harvested from the pristine waters of Zanzibar, Tanzania. 
+                Rich in nutrients, minerals, and wellness benefits.
+            </p>
+        </div> -->
+        
+        <!-- Product Filter Options -->
+        <!-- <div class="product-filters text-center mb-5">
+            <a href="{% url 'shop:home' %}" class="filter-btn active">All Products</a>
+            <a href="{% url 'shop:product_list' %}?type=gel" class="filter-btn">Sea Moss Gel</a>
+            <a href="{% url 'shop:product_list' %}?type=powder" class="filter-btn">Powder</a>
+            <a href="{% url 'shop:product_list' %}?type=capsules" class="filter-btn">Capsules</a>
+            <a href="{% url 'shop:product_list' %}?type=raw" class="filter-btn">Raw Sea Moss</a>
+        </div> -->
+        
+        <!-- All Products Grid -->
+        <div class="all-products-grid">
+            {% for product in all_products %}
+            <a href="{{ product.get_absolute_url }}" class="product-card card clickable-card">
+                <div class="product-image">
+                    {% if product.images.first %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="card-img-top">
+                    {% else %}
+                        <img src="https://m.media-amazon.com/images/I/81IPGoQcfQL._SL1500_.jpg" alt="{{ product.name }}" class="card-img-top">
+                    {% endif %}
+                    {% if product.is_on_sale %}
+                        <div class="product-badge">-{{ product.sale_percentage }}%</div>
+                    {% elif product.is_featured %}
+                        <div class="product-badge bg-warning">Featured</div>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h5 class="product-title">{{ product.name }}</h5>
+                    <div class="product-price">
+                        {% if product.is_on_sale %}
+                            <span class="original-price">${{ product.compare_at_price }}</span>
+                        {% endif %}
+                        ${{ product.price }}
+                    </div>
+                    {% if product.review_count > 0 %}
+                    <div class="product-rating">
+                        <span class="stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= product.average_rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="rating-text">({{ product.review_count }} reviews)</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="no-products">No products available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if all_products.count > 12 %}
+        <div class="text-center mt-5">
+            <a href="{% url 'shop:product_list' %}" class="btn btn-outline-primary btn-lg">View All Products</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+
+
+<!-- Benefits Section -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Why Choose Our Sea Moss?</h2>
+        
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="benefit-card text-center">
+                    <div class="benefit-icon">
+                        <i class="fas fa-water text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4>Pristine Waters</h4>
+                    <p>Harvested from the clean, mineral-rich waters surrounding Zanzibar, ensuring the highest quality and purity.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mb-4">
+                <div class="benefit-card text-center">
+                    <div class="benefit-icon">
+                        <i class="fas fa-leaf text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4>100% Natural</h4>
+                    <p>No artificial additives, preservatives, or chemicals. Pure, organic sea moss as nature intended.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mb-4">
+                <div class="benefit-card text-center">
+                    <div class="benefit-icon">
+                        <i class="fas fa-heart text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4>Rich in Nutrients</h4>
+                    <p>Packed with 92 of the 102 minerals your body needs, plus vitamins, antioxidants, and essential amino acids.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest Products Section -->
+{% if latest_products %}
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">New Arrivals</h2>
+        <p class="section-subtitle">
+            Discover our latest Sea Moss products and innovations.
+        </p>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in latest_products %}
+                    <tr>
+                        <td>
+                            {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-thumbnail" style="width: 50px; height: 50px;">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="fas fa-image text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ product.name }}</td>
+                        <td>${{ product.price }}</td>
+                        <td>
+                            <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary btn-sm">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="section bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="section-title text-white">Ready to Experience the Benefits?</h2>
+        <p class="section-subtitle text-white">
+            Join thousands of satisfied customers who have made Sea Moss part of their daily wellness routine.
+        </p>
+        <div class="mt-4">
+            <a href="{% url 'shop:product_list' %}" class="btn btn-light btn-lg me-3">Start Shopping</a>
+            <a href="https://wa.me/255742604651" target="_blank" class="btn btn-outline-light btn-lg whatsapp-btn" 
+               data-message="Hi! I'm interested in learning more about your Sea Moss products.">
+                <i class="fab fa-whatsapp me-2"></i>Chat with Us
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate numbers or any other home page specific functionality
+    const benefitCards = document.querySelectorAll('.benefit-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in-up');
+            }
+        });
+    });
+    
+    benefitCards.forEach(card => observer.observe(card));
+});
+</script>
+{% endblock %}

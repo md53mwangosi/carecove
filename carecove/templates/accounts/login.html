@@ -1,0 +1,68 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - CareCove{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h2>Welcome Back</h2>
+                        <p class="text-muted">Sign in to your CareCove account</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger">{{ form.password.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Sign In</button>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <p class="mb-0">Don't have an account? 
+                                <a href="{% url 'accounts:register' %}">Sign up here</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Support -->
+            <div class="text-center mt-4">
+                <p class="text-muted">Need help?</p>
+                <a href="https://wa.me/255742604651" target="_blank" 
+                   class="btn btn-outline-success btn-sm whatsapp-btn"
+                   data-message="Hi! I need help with my CareCove account.">
+                    <i class="fab fa-whatsapp me-1"></i>Contact Support
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

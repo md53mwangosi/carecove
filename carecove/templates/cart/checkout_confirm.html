@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirm Order - CareCove{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <h2 class="section-title">Order Confirmation</h2>
+            
+            <!-- Order Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in cart.items.all %}
+                    <div class="row align-items-center mb-3">
+                        <div class="col-md-2">
+                            {% if item.product.images.first %}
+                                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="img-fluid rounded" style="height: 60px;">
+                            {% else %}
+                                <img src="https://www.naturalmaxhealth.com/wp-content/uploads/2019/11/Sea-Moss-Front-B-fin-2-1024x1024-1160x1160.jpg" alt="{{ item.product.name }}" class="img-fluid rounded" style="height: 60px;">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6>{{ item.product.name }}</h6>
+                            {% if item.variant %}
+                                <small class="text-muted">Size: {{ item.variant.name }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span>{{ item.quantity }}</span>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <span>TZS {{ item.total_price|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Billing Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Billing Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Contact Information</h6>
+                            <p><strong>Email:</strong> {{ checkout_data.email }}</p>
+                            <p><strong>Phone:</strong> {{ checkout_data.billing_phone }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Billing Address</h6>
+                            <address>
+                                {{ checkout_data.billing_first_name }} {{ checkout_data.billing_last_name }}<br>
+                                {% if checkout_data.billing_company %}{{ checkout_data.billing_company }}<br>{% endif %}
+                                {{ checkout_data.billing_address_1 }}<br>
+                                {% if checkout_data.billing_address_2 %}{{ checkout_data.billing_address_2 }}<br>{% endif %}
+                                {{ checkout_data.billing_city }}, {{ checkout_data.billing_state }} {{ checkout_data.billing_postal_code }}<br>
+                                {{ checkout_data.billing_country }}
+                            </address>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Shipping Information</h5>
+                </div>
+                <div class="card-body">
+                    <address>
+                        {{ checkout_data.shipping_first_name }} {{ checkout_data.shipping_last_name }}<br>
+                        {% if checkout_data.shipping_company %}{{ checkout_data.shipping_company }}<br>{% endif %}
+                        {{ checkout_data.shipping_address_1 }}<br>
+                        {% if checkout_data.shipping_address_2 %}{{ checkout_data.shipping_address_2 }}<br>{% endif %}
+                        {{ checkout_data.shipping_city }}, {{ checkout_data.shipping_state }} {{ checkout_data.shipping_postal_code }}<br>
+                        {{ checkout_data.shipping_country }}
+                    </address>
+                </div>
+            </div>
+            
+            <!-- Invoice Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Invoice Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Your invoice will be automatically generated and sent to: <strong>{{ checkout_data.email }}</strong>
+                    </div>
+                    <p class="text-muted mb-0">
+                        After placing your order, you'll receive a detailed invoice via email with your order summary and payment instructions.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Total -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Order Total</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>TZS {{ subtotal|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping:</span>
+                        <span>{% if shipping_cost == 0 %}Free{% else %}TZS {{ shipping_cost|floatformat:2 }}{% endif %}</span>
+                    </div>
+                    {% if tax_amount > 0 %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax:</span>
+                        <span>TZS {{ tax_amount|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Total:</span>
+                        <span>TZS {{ total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Method -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Payment Method</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Secure payment via Pesapal
+                    </p>
+                    <small class="text-muted">We accept all major credit cards, mobile money, and bank transfers.</small>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="mt-4">
+                <form method="post" action="{% url 'cart:process_payment' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                        <i class="fas fa-lock me-2"></i>Place Order
+                    </button>
+                </form>
+                <a href="{% url 'cart:checkout' %}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Checkout
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

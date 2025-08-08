@@ -1,0 +1,208 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Addresses - CareCove{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- Profile Sidebar -->
+            <div class="profile-sidebar">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="profile-avatar mb-3">
+                            <i class="fas fa-user-circle fa-4x text-primary"></i>
+                        </div>
+                        <h5>{{ user.first_name|default:user.username }}</h5>
+                        <p class="text-muted">{{ user.email }}</p>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="{% url 'accounts:profile' %}">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                            <a class="nav-link" href="{% url 'accounts:order_history' %}">
+                                <i class="fas fa-box me-2"></i>Order History
+                            </a>
+                            <a class="nav-link" href="{% url 'accounts:edit_profile' %}">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </a>
+                            <a class="nav-link active" href="{% url 'accounts:manage_addresses' %}">
+                                <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                            </a>
+                            <a class="nav-link" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <!-- Manage Addresses Content -->
+            <div class="addresses-content">
+                <h2 class="section-title">Manage Addresses</h2>
+                
+                <!-- Add New Address -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>Add New Address</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" class="address-form">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.type.id_for_label }}" class="form-label">Address Type</label>
+                                        {{ form.type }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            {{ form.is_default }}
+                                            <label class="form-check-label" for="{{ form.is_default.id_for_label }}">
+                                                Make this my default address
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                        {{ form.first_name }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                        {{ form.last_name }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.company.id_for_label }}" class="form-label">Company (Optional)</label>
+                                {{ form.company }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.address_1.id_for_label }}" class="form-label">Address Line 1</label>
+                                {{ form.address_1 }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.address_2.id_for_label }}" class="form-label">Address Line 2 (Optional)</label>
+                                {{ form.address_2 }}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.city.id_for_label }}" class="form-label">City</label>
+                                        {{ form.city }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.state.id_for_label }}" class="form-label">State/Region</label>
+                                        {{ form.state }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.postal_code.id_for_label }}" class="form-label">Postal Code</label>
+                                        {{ form.postal_code }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.country.id_for_label }}" class="form-label">Country</label>
+                                        {{ form.country }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.phone.id_for_label }}" class="form-label">Phone (Optional)</label>
+                                        {{ form.phone }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Add Address</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Existing Addresses -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Saved Addresses</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if addresses %}
+                        <div class="row">
+                            {% for address in addresses %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="card-title">
+                                                    {{ address.get_type_display }}
+                                                    {% if address.is_default %}
+                                                        <span class="badge bg-primary">Default</span>
+                                                    {% endif %}
+                                                </h6>
+                                                <p class="card-text">
+                                                    {{ address.first_name }} {{ address.last_name }}<br>
+                                                    {% if address.company %}{{ address.company }}<br>{% endif %}
+                                                    {{ address.address_1 }}<br>
+                                                    {% if address.address_2 %}{{ address.address_2 }}<br>{% endif %}
+                                                    {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
+                                                    {{ address.country }}
+                                                    {% if address.phone %}<br>Phone: {{ address.phone }}{% endif %}
+                                                </p>
+                                            </div>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="#">Edit</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No saved addresses yet. Add one above to get started.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

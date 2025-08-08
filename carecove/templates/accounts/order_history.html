@@ -1,0 +1,129 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order History - CareCove{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- Profile Sidebar -->
+            <div class="profile-sidebar">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="profile-avatar mb-3">
+                            <i class="fas fa-user-circle fa-4x text-primary"></i>
+                        </div>
+                        <h5>{{ user.first_name|default:user.username }}</h5>
+                        <p class="text-muted">{{ user.email }}</p>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="{% url 'accounts:profile' %}">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                            <a class="nav-link active" href="{% url 'accounts:order_history' %}">
+                                <i class="fas fa-box me-2"></i>Order History
+                            </a>
+                            <a class="nav-link" href="{% url 'accounts:edit_profile' %}">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </a>
+                            <a class="nav-link" href="{% url 'accounts:manage_addresses' %}">
+                                <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                            </a>
+                            <a class="nav-link" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <!-- Order History Content -->
+            <div class="order-history-content">
+                <h2 class="section-title">Order History</h2>
+                
+                {% if orders %}
+                <div class="orders-list">
+                    {% for order in orders %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h6 class="mb-0">Order #{{ order.order_number }}</h6>
+                                    <small class="text-muted">{{ order.created_at|date:"F d, Y" }}</small>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <span class="badge bg-{{ order.status|yesno:'success,warning,danger' }} me-2">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                    <span class="badge bg-{{ order.payment_status|yesno:'success,warning,danger' }}">
+                                        {{ order.get_payment_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="order-items">
+                                        {% for item in order.items.all %}
+                                        <div class="order-item d-flex align-items-center mb-2">
+                                            <div class="item-image me-3">
+                                                {% if item.product.images.first %}
+                                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="img-fluid rounded" style="width: 50px; height: 50px;">
+                                                {% else %}
+                                                    <img src="https://www.naturalmaxhealth.com/wp-content/uploads/2019/11/Sea-Moss-Front-B-fin-2-1024x1024-1160x1160.jpg" alt="{{ item.product.name }}" class="img-fluid rounded" style="width: 50px; height: 50px;">
+                                                {% endif %}
+                                            </div>
+                                            <div class="item-details">
+                                                <h6 class="mb-1">{{ item.product.name }}</h6>
+                                                {% if item.variant %}
+                                                    <small class="text-muted">Size: {{ item.variant.name }}</small><br>
+                                                {% endif %}
+                                                <small class="text-muted">Quantity: {{ item.quantity }} × ${{ item.price }}</small>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <div class="order-total">
+                                        <h5 class="mb-1">${{ order.total }}</h5>
+                                        <small class="text-muted">Total</small>
+                                    </div>
+                                    <div class="order-actions mt-3">
+                                        <a href="{% url 'cart:order_detail' order.order_number %}" class="btn btn-outline-primary btn-sm">
+                                            View Details
+                                        </a>
+                                        {% if order.status == 'delivered' %}
+                                            <a href="{% url 'shop:submit_review' order.items.first.product.slug %}" class="btn btn-outline-success btn-sm">
+                                                Review
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-orders text-center py-5">
+                    <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+                    <h4>No orders yet</h4>
+                    <p class="text-muted">When you place your first order, it will appear here.</p>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-primary">Start Shopping</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
