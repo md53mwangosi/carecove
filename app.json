@@ -1,0 +1,67 @@
+
+{
+  "name": "CareCove",
+  "description": "Premium Sea Moss E-commerce Platform from Tanzania",
+  "repository": "https://github.com/your-username/carecove-django",
+  "logo": "https://your-domain.com/static/img/logo.png",
+  "keywords": ["django", "ecommerce", "sea-moss", "tanzania", "chatbot"],
+  "website": "https://www.carecove.co.tz",
+  "success_url": "/",
+  "stack": "heroku-20",
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "hobby"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev"
+    },
+    {
+      "plan": "heroku-redis:hobby-dev"
+    }
+  ],
+  "env": {
+    "DEBUG": {
+      "description": "Enable Django debug mode",
+      "value": "False"
+    },
+    "SECRET_KEY": {
+      "description": "Django secret key",
+      "generator": "secret"
+    },
+    "ALLOWED_HOSTS": {
+      "description": "Comma-separated list of allowed hosts",
+      "value": "your-app-name.herokuapp.com"
+    },
+    "ABACUSAI_API_KEY": {
+      "description": "API key for LLM chatbot functionality",
+      "required": true
+    },
+    "WHATSAPP_NUMBER": {
+      "description": "WhatsApp contact number for customer support",
+      "value": "+255742604651"
+    },
+    "PESAPAL_CONSUMER_KEY": {
+      "description": "Pesapal payment gateway consumer key",
+      "required": false
+    },
+    "PESAPAL_CONSUMER_SECRET": {
+      "description": "Pesapal payment gateway consumer secret",
+      "required": false
+    },
+    "PESAPAL_DEMO": {
+      "description": "Use Pesapal demo mode",
+      "value": "True"
+    }
+  },
+  "scripts": {
+    "postdeploy": "python manage.py migrate && python manage.py collectstatic --noinput && python manage.py seed_data && python manage.py seed_chatbot_data"
+  }
+}

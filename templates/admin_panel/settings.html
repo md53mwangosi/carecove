@@ -1,0 +1,115 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Admin Settings - CareCove{% endblock %}
+{% block page_title %}Admin Settings{% endblock %}
+{% block page_description %}Configure your CareCove store settings{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="mb-4">
+                <i class="fas fa-cog me-2"></i>Admin Settings
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- General Settings -->
+        <div class="col-lg-6 col-xl-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-globe me-2"></i>General Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Configure your website's basic information, branding, and contact details.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Site name & tagline</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Contact information</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Regional settings</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'admin_panel:admin_settings' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit me-1"></i>Configure
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Settings -->
+        <div class="col-lg-6 col-xl-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-credit-card me-2"></i>Payment Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Configure payment gateways and methods for customer checkout.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Pesapal integration</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Cash on delivery</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Bank transfer</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'admin_panel:payment_settings' %}" class="btn btn-success btn-sm">
+                        <i class="fas fa-edit me-1"></i>Configure
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shipping Settings -->
+        <div class="col-lg-6 col-xl-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-shipping-fast me-2"></i>Shipping Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Configure shipping rates and methods for your customers.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Domestic & international</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Free shipping thresholds</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Express options</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'admin_panel:shipping_settings' %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-edit me-1"></i>Configure
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tax Settings -->
+        <div class="col-lg-6 col-xl-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-percentage me-2"></i>Tax Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Configure tax rates and rules for your products and services.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>VAT configuration</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Tax rules</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Price display options</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'admin_panel:tax_settings' %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit me-1"></i>Configure
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

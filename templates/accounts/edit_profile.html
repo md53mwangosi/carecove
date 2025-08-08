@@ -1,0 +1,196 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - CareCove{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- Profile Sidebar -->
+            <div class="profile-sidebar">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="profile-avatar mb-3">
+                            <i class="fas fa-user-circle fa-4x text-primary"></i>
+                        </div>
+                        <h5>{{ user.first_name|default:user.username }}</h5>
+                        <p class="text-muted">{{ user.email }}</p>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="{% url 'accounts:profile' %}">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                            <a class="nav-link" href="{% url 'accounts:order_history' %}">
+                                <i class="fas fa-box me-2"></i>Order History
+                            </a>
+                            <a class="nav-link active" href="{% url 'accounts:edit_profile' %}">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </a>
+                            <a class="nav-link" href="{% url 'accounts:manage_addresses' %}">
+                                <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                            </a>
+                            <a class="nav-link" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <!-- Edit Profile Form -->
+            <div class="profile-content">
+                <h2 class="section-title">Edit Profile</h2>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" class="profile-form">
+                            {% csrf_token %}
+                            
+                            <!-- Personal Information -->
+                            <h5 class="mb-3">Personal Information</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                        {{ form.first_name }}
+                                        {% if form.first_name.errors %}
+                                            <div class="text-danger">{{ form.first_name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                        {{ form.last_name }}
+                                        {% if form.last_name.errors %}
+                                            <div class="text-danger">{{ form.last_name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                            <div class="text-danger">{{ form.email.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
+                                        {{ form.phone }}
+                                        {% if form.phone.errors %}
+                                            <div class="text-danger">{{ form.phone.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.birth_date.id_for_label }}" class="form-label">Birth Date</label>
+                                        {{ form.birth_date }}
+                                        {% if form.birth_date.errors %}
+                                            <div class="text-danger">{{ form.birth_date.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.preferred_language.id_for_label }}" class="form-label">Preferred Language</label>
+                                        {{ form.preferred_language }}
+                                        {% if form.preferred_language.errors %}
+                                            <div class="text-danger">{{ form.preferred_language.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Default Billing Address -->
+                            <h5 class="mb-3 mt-4">Default Billing Address</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.default_billing_address_1.id_for_label }}" class="form-label">Address Line 1</label>
+                                        {{ form.default_billing_address_1 }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.default_billing_address_2.id_for_label }}" class="form-label">Address Line 2</label>
+                                        {{ form.default_billing_address_2 }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.default_billing_city.id_for_label }}" class="form-label">City</label>
+                                        {{ form.default_billing_city }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.default_billing_state.id_for_label }}" class="form-label">State/Region</label>
+                                        {{ form.default_billing_state }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="{{ form.default_billing_postal_code.id_for_label }}" class="form-label">Postal Code</label>
+                                        {{ form.default_billing_postal_code }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.default_billing_country.id_for_label }}" class="form-label">Country</label>
+                                {{ form.default_billing_country }}
+                            </div>
+                            
+                            <!-- Communication Preferences -->
+                            <h5 class="mb-3 mt-4">Communication Preferences</h5>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.receive_newsletter }}
+                                    <label class="form-check-label" for="{{ form.receive_newsletter.id_for_label }}">
+                                        Receive newsletter updates
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.receive_order_updates }}
+                                    <label class="form-check-label" for="{{ form.receive_order_updates.id_for_label }}">
+                                        Receive order status updates
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'accounts:profile' %}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Update Profile</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

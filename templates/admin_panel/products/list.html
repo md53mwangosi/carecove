@@ -1,0 +1,171 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block page_title %}Products Management{% endblock %}
+{% block page_description %}Manage your sea moss products catalog{% endblock %}
+
+{% block content %}
+<!-- Quick Actions -->
+<div class="quick-actions mb-4">
+    <a href="{% url 'admin_panel:product_add' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New Product
+    </a>
+    
+    <button class="btn btn-outline-primary" data-export-url="{% url 'admin_panel:products_export' %}">
+        <i class="fas fa-file-csv me-2"></i>Export CSV
+    </button>
+</div>
+
+<!-- Filters -->
+<div class="filters mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-7">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" name="search" placeholder="Search products..." value="{{ search_query }}">
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <select class="form-control" name="status">
+                <option value="">All Status</option>
+                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+            </select>
+        </div>
+        
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Products Table -->
+<div class="card shadow">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Products ({{ products.paginator.count }})</h5>
+    </div>
+    <div class="card-body">
+        {% if products %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>SKU</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>
+                                {% if product.images.first %}
+                                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                    <div class="img-thumbnail bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ product.name }}</strong>
+                                {% if product.is_featured %}
+                                    <span class="badge bg-warning ms-1">Featured</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ product.sku|default:'-' }}</td>
+                            <td>{{ product.category.name|default:'-' }}</td>
+                            <td>TZS {{ product.price|floatformat:0 }}</td>
+                            <td>
+                                {% if product.stock_quantity <= 10 %}
+                                    <span class="badge bg-danger">{{ product.stock_quantity }}</span>
+                                {% else %}
+                                    <span class="badge bg-success">{{ product.stock_quantity }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ product.is_active|yesno:'success,danger' }}">
+                                    {{ product.is_active|yesno:'Active,Inactive' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'admin_panel:product_edit' product.id %}" class="btn btn-primary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'admin_panel:product_images' product.id %}" class="btn btn-info" title="Images">
+                                        <i class="fas fa-images"></i>
+                                    </a>
+                                    <a href="{% url 'shop:product_detail' product.slug %}" class="btn btn-success" title="View" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-4">
+                        {% if products.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in products.paginator.page_range %}
+                            {% if products.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if products.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No products found</h5>
+                <p class="text-muted">
+                    {% if search_query %}
+                        No products match your search for "{{ search_query }}"
+                    {% else %}
+                        No products available. Add your first product to get started!
+                    {% endif %}
+                </p>
+                <a href="{% url 'admin_panel:product_add' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add New Product
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

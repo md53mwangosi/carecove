@@ -1,0 +1,255 @@
+
+{% extends 'admin_panel/base.html' %}
+
+{% block page_title %}Order {{ order.order_number }}{% endblock %}
+{% block page_description %}Order details and management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Order {{ order.order_number }}</h2>
+    <div>
+        <a href="{% url 'admin_panel:order_invoice' order.id %}" class="btn btn-outline-info" target="_blank">
+            <i class="fas fa-file-invoice"></i> Invoice
+        </a>
+        <a href="{% url 'admin_panel:orders_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Orders
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Order Items -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Order Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if item.product.images.first %}
+                                            <img src="{{ item.product.images.first.image.url }}" 
+                                                 alt="{{ item.product.name }}" 
+                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px;">
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ item.product.name }}</strong>
+                                            {% if item.variant %}
+                                                <br><small class="text-muted">{{ item.variant.name }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>TSh {{ item.price|floatformat:0 }}</td>
+                                <td>TSh {{ item.total|floatformat:0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Order Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Subtotal:</strong></td>
+                                <td class="text-end">TSh {{ order.subtotal|floatformat:0 }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shipping:</strong></td>
+                                <td class="text-end">TSh {{ order.shipping_cost|floatformat:0 }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tax:</strong></td>
+                                <td class="text-end">TSh {{ order.tax_amount|floatformat:0 }}</td>
+                            </tr>
+                            <tr class="table-dark">
+                                <td><strong>Total:</strong></td>
+                                <td class="text-end"><strong>TSh {{ order.total|floatformat:0 }}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Payment Method:</strong> {{ order.payment_method|title }}</p>
+                        {% if order.payment_reference %}
+                        <p><strong>Payment Reference:</strong> {{ order.payment_reference }}</p>
+                        {% endif %}
+                        <p><strong>Order Date:</strong> {{ order.created_at|date:"M d, Y g:i A" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Billing & Shipping Address -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Billing Address</h5>
+                    </div>
+                    <div class="card-body">
+                        <address>
+                            <strong>{{ order.billing_first_name }} {{ order.billing_last_name }}</strong><br>
+                            {% if order.billing_company %}{{ order.billing_company }}<br>{% endif %}
+                            {{ order.billing_address_1 }}<br>
+                            {% if order.billing_address_2 %}{{ order.billing_address_2 }}<br>{% endif %}
+                            {{ order.billing_city }}, {{ order.billing_state }} {{ order.billing_postal_code }}<br>
+                            {{ order.billing_country }}<br>
+                            <strong>Phone:</strong> {{ order.billing_phone }}<br>
+                            <strong>Email:</strong> {{ order.email }}
+                        </address>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Shipping Address</h5>
+                    </div>
+                    <div class="card-body">
+                        <address>
+                            <strong>{{ order.shipping_first_name }} {{ order.shipping_last_name }}</strong><br>
+                            {% if order.shipping_company %}{{ order.shipping_company }}<br>{% endif %}
+                            {{ order.shipping_address_1 }}<br>
+                            {% if order.shipping_address_2 %}{{ order.shipping_address_2 }}<br>{% endif %}
+                            {{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_postal_code }}<br>
+                            {{ order.shipping_country }}
+                        </address>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Order Status -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Order Status</h5>
+            </div>
+            <div class="card-body">
+                <form id="statusForm">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Order Status</label>
+                        <select class="form-select" id="status" name="status">
+                            {% for status_value, status_label in status_choices %}
+                            <option value="{{ status_value }}" {% if status_value == order.status %}selected{% endif %}>
+                                {{ status_label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_status" class="form-label">Payment Status</label>
+                        <select class="form-select" id="payment_status" name="payment_status">
+                            {% for payment_status_value, payment_status_label in payment_status_choices %}
+                            <option value="{{ payment_status_value }}" {% if payment_status_value == order.payment_status %}selected{% endif %}>
+                                {{ payment_status_label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save"></i> Update Status
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Order Info -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Order Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-2">
+                        <strong>Order Number:</strong> {{ order.order_number }}
+                    </div>
+                    <div class="col-12 mb-2">
+                        <strong>Created:</strong> {{ order.created_at|date:"M d, Y g:i A" }}
+                    </div>
+                    <div class="col-12 mb-2">
+                        <strong>Updated:</strong> {{ order.updated_at|date:"M d, Y g:i A" }}
+                    </div>
+                    <div class="col-12 mb-2">
+                        <strong>Customer:</strong> 
+                        {% if order.user %}
+                            <a href="{% url 'admin_panel:customer_detail' order.user.id %}">
+                                {{ order.user.get_full_name|default:order.user.username }}
+                            </a>
+                        {% else %}
+                            Guest
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Notes -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Order Notes</h5>
+            </div>
+            <div class="card-body">
+                {% if order.order_notes %}
+                    <p>{{ order.order_notes|linebreaks }}</p>
+                {% else %}
+                    <p class="text-muted">No notes for this order.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('statusForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    $.ajax({
+        url: '{% url "admin_panel:order_update_status" order.id %}',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response.success) {
+                showMessage(response.message, 'success');
+                location.reload();
+            } else {
+                showMessage(response.message, 'danger');
+            }
+        },
+        error: function(xhr) {
+            showMessage('Error updating order status. Please try again.', 'danger');
+        }
+    });
+});
+</script>
+{% endblock %}

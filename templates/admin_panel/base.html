@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CareCove Admin{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #00796b;
+            --primary-dark: #004d40;
+            --secondary-color: #006064;
+            --success-color: #2e7d32;
+            --warning-color: #ff8f00;
+            --danger-color: #c62828;
+            --info-color: #0277bd;
+            --light-color: #e0f7fa;
+            --dark-color: #00251a;
+            --sidebar-bg: #006064;
+            --sidebar-hover: #00838f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0f7fa; 
+            background-image: url('/static/img/zanzibar-beach.jpg'); 
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: #004d40;
+        }
+        
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            min-height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link {
+            color: #bdc3c7;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: var(--primary-color);
+            background-color: var(--sidebar-hover);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Improved card styles */
+        .card {
+            background-color: #ffffffcc; /* semi-transparent white */
+            border-radius: 15px;
+            border: 1px solid var(--primary-color);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        /* Improved table container */
+        .table-responsive {
+            background-color: #ffffffcc;
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        /* Enhanced table styles */
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-dark);
+            padding: 12px 15px;
+        }
+
+        .table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(0, 121, 107, 0.05);
+            cursor: pointer;
+        }
+
+        /* Better pagination */
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination .page-link {
+            color: var(--primary-color);
+            border-radius: 50%;
+            margin: 0 3px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 1px solid var(--primary-color);
+        }
+
+        .pagination .page-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stats-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        
+        .table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .badge {
+            padding: 8px 12px;
+            font-size: 0.75rem;
+        }
+        
+        .badge-success {
+            background-color: var(--success-color);
+        }
+        
+        .badge-warning {
+            background-color: var(--warning-color);
+        }
+        
+        .badge-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .badge-info {
+            background-color: var(--info-color);
+        }
+        
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-brand h4 {
+            color: var(--primary-color);
+            margin: 0;
+            font-weight: bold;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(249, 195, 73, 0.25);
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .pagination .page-link {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .pagination .page-link:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow-x: hidden;
+                position: fixed;
+                height: 100%;
+                z-index: 1050;
+                transition: width 0.3s ease;
+            }
+
+            .sidebar.active {
+                width: 250px;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                padding: 20px;
+                transition: margin-left 0.3s ease;
+            }
+
+            .mobile-menu-btn {
+                display: block !important;
+            }
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background-color: var(--sidebar-bg);
+            box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            z-index: 1050;
+        }
+
+        .mobile-sidebar.active {
+            left: 0;
+        }
+
+        .mobile-sidebar-content {
+            padding: 1rem;
+        }
+
+        .close-sidebar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .mobile-menu-list {
+            padding-top: 20px;
+        }
+
+        .mobile-menu-list .nav-link {
+            color: #bdc3c7;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .mobile-menu-list .nav-link:hover,
+        .mobile-menu-list .nav-link.active {
+            color: var(--primary-color);
+            background-color: var(--sidebar-hover);
+        }
+
+        .mobile-menu-list .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            max-width: 300px;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .status-pending {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .status-processing {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .status-shipped {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .status-delivered {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .status-cancelled {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .low-stock {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .out-of-stock {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+
+        .spinner-border {
+            color: var(--primary-color);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Sidebar -->
+    <div id="mobileSidebar" class="mobile-sidebar">
+        <div class="mobile-sidebar-content">
+            <button id="closeSidebar" class="close-sidebar">&times;</button>
+            <div class="sidebar-brand">
+                <h4><i class="fas fa-leaf"></i> CareCove Admin</h4>
+            </div>
+            <nav class="mobile-menu-list">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'admin_panel:dashboard' %}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+
+                <a class="nav-link {% if 'products' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:products_list' %}">
+                    <i class="fas fa-box"></i> Products
+                </a>
+
+                <a class="nav-link {% if 'orders' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:orders_list' %}">
+                    <i class="fas fa-shopping-cart"></i> Orders
+                    {% if pending_orders_count %}
+                        <span class="notification-badge">{{ pending_orders_count }}</span>
+                    {% endif %}
+                </a>
+
+                <a class="nav-link {% if 'customers' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:customers_list' %}">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+
+                <a class="nav-link {% if 'testimonials' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:testimonials_list' %}">
+                    <i class="fas fa-star"></i> Testimonials
+                    {% if pending_testimonials_count %}
+                        <span class="notification-badge">{{ pending_testimonials_count }}</span>
+                    {% endif %}
+                </a>
+
+                <a class="nav-link {% if 'newsletter' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:newsletter_list' %}">
+                    <i class="fas fa-envelope"></i> Newsletter
+                </a>
+
+                <a class="nav-link {% if 'chatbot' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:chatbot_management' %}">
+                    <i class="fas fa-robot"></i> Chatbot
+                </a>
+
+                <a class="nav-link {% if 'settings' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:admin_settings' %}">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+
+                <a class="nav-link {% if 'notifications' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:notifications_list' %}">
+                    <i class="fas fa-bell"></i> Notifications
+                    {% if unread_notifications_count %}
+                        <span class="notification-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+
+                <hr style="border-color: rgba(255,255,255,0.1);">
+
+                <a class="nav-link" href="{% url 'shop:home' %}" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View Website
+                </a>
+
+                <a class="nav-link" href="{% url 'accounts:logout' %}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h4><i class="fas fa-leaf"></i> CareCove Admin</h4>
+        </div>
+        
+        <nav class="nav flex-column">
+            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'admin_panel:dashboard' %}">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            
+            <a class="nav-link {% if 'products' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:products_list' %}">
+                <i class="fas fa-box"></i> Products
+            </a>
+            
+            <a class="nav-link {% if 'orders' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:orders_list' %}">
+                <i class="fas fa-shopping-cart"></i> Orders
+                {% if pending_orders_count %}
+                    <span class="notification-badge">{{ pending_orders_count }}</span>
+                {% endif %}
+            </a>
+            
+            <a class="nav-link {% if 'customers' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:customers_list' %}">
+                <i class="fas fa-users"></i> Customers
+            </a>
+            
+            <a class="nav-link {% if 'testimonials' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:testimonials_list' %}">
+                <i class="fas fa-star"></i> Testimonials
+                {% if pending_testimonials_count %}
+                    <span class="notification-badge">{{ pending_testimonials_count }}</span>
+                {% endif %}
+            </a>
+            
+            <a class="nav-link {% if 'newsletter' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:newsletter_list' %}">
+                <i class="fas fa-envelope"></i> Newsletter
+            </a>
+            
+            <a class="nav-link {% if 'chatbot' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:chatbot_management' %}">
+                <i class="fas fa-robot"></i> Chatbot
+            </a>
+
+            <a class="nav-link {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:analytics' %}">
+                <i class="fas fa-chart-line"></i> Analytics
+            </a>
+            
+            <a class="nav-link {% if 'settings' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:admin_settings' %}">
+            <i class="fas fa-cog"></i> Settings
+            </a>
+            
+            <a class="nav-link {% if 'notifications' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_panel:notifications_list' %}">
+                <i class="fas fa-bell"></i> Notifications
+                {% if unread_notifications_count %}
+                    <span class="notification-badge">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </a>
+            
+            <hr style="border-color: rgba(255,255,255,0.1);">
+            
+            <a class="nav-link" href="{% url 'shop:home' %}" target="_blank">
+                <i class="fas fa-external-link-alt"></i> View Website
+            </a>
+            
+            <a class="nav-link" href="{% url 'accounts:logout' %}">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1>{% block page_title %}CareCove Admin Panel{% endblock %}</h1>
+                    <p class="mb-0">{% block page_description %}Manage your CareCove e-commerce platform{% endblock %}</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark">{{ user.get_full_name|default:user.username }}</span>
+                    <a href="{% url 'accounts:logout' %}" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages -->
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <!-- Content -->
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileSidebar = document.getElementById('mobileSidebar');
+            const closeSidebarBtn = document.getElementById('closeSidebar');
+
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileSidebar.classList.add('active');
+            });
+
+            closeSidebarBtn.addEventListener('click', function() {
+                mobileSidebar.classList.remove('active');
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!mobileSidebar.contains(e.target) && e.target !== mobileMenuBtn) {
+                    mobileSidebar.classList.remove('active');
+                }
+            });
+        });
+
+        // jQuery mobile menu toggle (kept for compatibility)
+        $('#mobileMenuBtn').on('click', function() {
+            $('#mobileSidebar').addClass('active');
+        });
+
+        $('#closeSidebar').on('click', function() {
+            $('#mobileSidebar').removeClass('active');
+        });
+
+        // Close mobile menu when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#mobileSidebar, #mobileMenuBtn').length) {
+                $('#mobileSidebar').removeClass('active');
+            }
+        });
+        
+        // AJAX setup
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", $('[name=csrfmiddlewaretoken]').val());
+                }
+            }
+        });
+        
+        // Common functions
+        function showLoading() {
+            $('.loading').addClass('show');
+        }
+        
+        function hideLoading() {
+            $('.loading').removeClass('show');
+        }
+        
+        function showMessage(message, type = 'success') {
+            const alertHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('.main-content').prepend(alertHTML);
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                $('.alert').alert('close');
+            }, 5000);
+        }
+        
+        // Confirm delete
+        function confirmDelete(message = 'Are you sure you want to delete this item?') {
+            return confirm(message);
+        }
+        
+        // Auto-hide alerts
+        setTimeout(() => {
+            $('.alert').alert('close');
+        }, 10000);
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Table search functionality
+        function setupTableSearch() {
+            $('.table-search').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('.searchable-table tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+        }
+        
+        // Initialize table search
+        setupTableSearch();
+        
+        // Bulk actions
+        function setupBulkActions() {
+            $('#selectAll').on('change', function() {
+                $('.item-checkbox').prop('checked', this.checked);
+                updateBulkActions();
+            });
+            
+            $('.item-checkbox').on('change', function() {
+                updateBulkActions();
+            });
+        }
+        
+        function updateBulkActions() {
+            const checkedItems = $('.item-checkbox:checked').length;
+            if (checkedItems > 0) {
+                $('.bulk-actions').removeClass('d-none');
+                $('.bulk-count').text(checkedItems);
+            } else {
+                $('.bulk-actions').addClass('d-none');
+            }
+        }
+        
+        // Initialize bulk actions
+        setupBulkActions();
+        
+        // Export functionality
+        function exportData(url, format = 'csv') {
+            window.location.href = url + '?format=' + format;
+        }
+        
+        // Real-time updates (placeholder for WebSocket implementation)
+        function setupRealTimeUpdates() {
+            // This would connect to WebSocket for real-time updates
+            // For now, we'll use periodic polling
+            setInterval(function() {
+                // Check for new notifications, orders, etc.
+                // This is a placeholder for actual implementation
+            }, 30000); // Check every 30 seconds
+        }
+        
+        // Initialize real-time updates
+        setupRealTimeUpdates();
+    </script>
+    
+    {% block extra_js %}
+    <script>
+        window.addEventListener('beforeunload', function (event) {
+            // Use navigator.sendBeacon for async logout on page unload
+            const logoutUrl = "{% url 'accounts:logout' %}";
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(logoutUrl);
+            } else {
+                // Fallback to synchronous XMLHttpRequest
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', logoutUrl, false); // false for synchronous
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                xhr.send(null);
+            }
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>
