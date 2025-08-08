@@ -1,0 +1,48 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Failed - CareCove{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="payment-failed-icon mb-4">
+                        <i class="fas fa-times-circle fa-5x text-danger"></i>
+                    </div>
+                    
+                    <h2 class="text-danger mb-3">Payment Failed</h2>
+                    <p class="text-muted mb-4">
+                        We're sorry, but your payment could not be processed. Please try again or contact our support team for assistance.
+                    </p>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Your order has not been placed. No payment has been charged.
+                    </div>
+                    
+                    <div class="payment-actions">
+                        <a href="{% url 'cart:checkout' %}" class="btn btn-primary me-3">
+                            <i class="fas fa-credit-card me-2"></i>Try Again
+                        </a>
+                        <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-shopping-cart me-2"></i>Return to Cart
+                        </a>
+                    </div>
+                    
+                    <div class="support-info mt-4">
+                        <p class="text-muted">Need help? Contact our support team:</p>
+                        <a href="https://wa.me/{{ settings.WHATSAPP_NUMBER|default:'+255742604651' }}?text=Hi! I need help with a payment issue." 
+                           class="btn btn-success" target="_blank">
+                            <i class="fab fa-whatsapp me-2"></i>WhatsApp Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

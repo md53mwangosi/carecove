@@ -1,0 +1,207 @@
+{% load cart_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice from CareCove</title>
+    <style>
+        :root {
+            --primary-color: #d4af37;
+            --secondary-color: #8B4513;
+            --text-color: #333;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .email-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #b8941f);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .order-summary {
+            background: var(--light-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .order-summary h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .order-details {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .order-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .order-details th,
+        .order-details td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-details th {
+            background: var(--light-bg);
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .total-row {
+            background: var(--primary-color) !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-color), #b8941f);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+
+        .footer {
+            background: var(--light-bg);
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .highlight {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .payment-reminder {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .payment-reminder strong {
+            color: var(--secondary-color);
+        }
+
+        .small-text {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>CareCove Sea Moss</h1>
+            <p>Premium Sea Moss Products from Tanzania</p>
+        </div>
+
+        <div class="content">
+            <p class="greeting">Hello {{ customer_name|title }},</p>
+            
+            <p>Thank you for your order! We've prepared your invoice for order <span class="highlight">#{{ order.order_number }}</span>.</p>
+
+            <div class="order-summary">
+                <h3>Order Summary</h3>
+                <p><strong>Order Number:</strong> <span class="highlight">#{{ order.order_number }}</span></p>
+                <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+                <p><strong>Total Amount:</strong> <span class="highlight">TZS {{ order.total|floatformat:2 }}</span></p>
+                <p><strong>Payment Method:</strong> {{ order.payment_method|title }}</p>
+            </div>
+
+            {% if order.payment_status == 'pending' %}
+            <div class="payment-reminder">
+                <strong><i class="fas fa-clock"></i> Payment Reminder:</strong>
+                Your payment is still pending. Please complete your payment within 7 days to secure your order.
+                <br><strong>Due Date:</strong> {{ order.created_at|date_add_days:7|date:"F d, Y" }}
+            </div>
+            {% endif %}
+
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="#" class="button">View Full Invoice</a>
+                <a href="#" class="button">Contact Support</a>
+            </div>
+
+            <p>If you have any questions about your order, please don't hesitate to contact us at <strong>info@carecove.co.tz</strong> or call <strong>+255 123 456 789</strong>.</p>
+
+            <p class="small-text">This email was sent to {{ order.email }}. If you have any concerns, please contact our support team.</p>
+        </div>
+
+        <div class="footer">
+            <p><strong>CareCove Sea Moss</strong></p>
+            <p>Dar es Salaam, Tanzania</p>
+            <p>Email: info@carecove.co.tz | Phone: +255 123 456 789</p>
+            <p class="small-text">Thank you for choosing CareCove Sea Moss!</p>
+        </div>
+    </div>
+</body>
+</html>

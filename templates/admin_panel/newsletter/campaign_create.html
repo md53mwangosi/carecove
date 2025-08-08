@@ -1,0 +1,216 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Create Email Campaign | Admin Panel{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Create Email Campaign</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:newsletter_list' %}">Newsletter</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_panel:newsletter_campaigns' %}">Campaigns</a></li>
+        <li class="breadcrumb-item active">Create Campaign</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-paper-plane me-1"></i>
+                    Campaign Details
+                </div>
+                <div class="card-body">
+                    <form id="campaignForm" method="post">
+                        {% csrf_token %}
+                        
+                        <ul class="nav nav-tabs mb-4" id="languageTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="english-tab" data-bs-toggle="tab" data-bs-target="#english" type="button" role="tab" aria-controls="english" aria-selected="true">English</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="swahili-tab" data-bs-toggle="tab" data-bs-target="#swahili" type="button" role="tab" aria-controls="swahili" aria-selected="false">Swahili</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="languageTabsContent">
+                            <!-- English Content -->
+                            <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="english-tab">
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject Line (English)</label>
+                                    <input type="text" class="form-control" id="subject" name="subject" required>
+                                    <div class="form-text">Create a compelling subject line to improve open rates.</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Email Content (English)</label>
+                                    <textarea class="form-control" id="content" name="content" rows="15" required></textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Swahili Content -->
+                            <div class="tab-pane fade" id="swahili" role="tabpanel" aria-labelledby="swahili-tab">
+                                <div class="mb-3">
+                                    <label for="subject_sw" class="form-label">Subject Line (Swahili)</label>
+                                    <input type="text" class="form-control" id="subject_sw" name="subject_sw">
+                                    <div class="form-text">Optional. If left empty, English subject will be used for all subscribers.</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="content_sw" class="form-label">Email Content (Swahili)</label>
+                                    <textarea class="form-control" id="content_sw" name="content_sw" rows="15"></textarea>
+                                    <div class="form-text">Optional. If left empty, English content will be used for all subscribers.</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'admin_panel:newsletter_campaigns' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Campaigns
+                            </a>
+                            <div>
+                                <button type="submit" name="action" value="draft" class="btn btn-secondary me-2">
+                                    <i class="fas fa-save me-1"></i> Save as Draft
+                                </button>
+                                <button type="submit" name="action" value="send" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-1"></i> Send Campaign
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Campaign Information
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5>Subscriber Statistics</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Total Active Subscribers
+                                <span class="badge bg-primary rounded-pill">{{ active_subscribers_count }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                English Preferred
+                                <span class="badge bg-info rounded-pill">{{ english_subscribers_count }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Swahili Preferred
+                                <span class="badge bg-info rounded-pill">{{ swahili_subscribers_count }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h5>Tips for Effective Campaigns</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Keep subject lines under 50 characters
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Include a clear call-to-action
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Use personalization where possible
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Test your email before sending
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h5>Available Placeholders</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <code>{{name}}</code> - Subscriber's name
+                            </li>
+                            <li class="list-group-item">
+                                <code>{{email}}</code> - Subscriber's email
+                            </li>
+                            <li class="list-group-item">
+                                <code>{{unsubscribe_link}}</code> - Unsubscribe link
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize rich text editors
+        $('#content').summernote({
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            placeholder: 'Compose your email content here...'
+        });
+        
+        $('#content_sw').summernote({
+            height: 300,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            placeholder: 'Compose your Swahili email content here...'
+        });
+        
+        // Form validation
+        document.getElementById('campaignForm').addEventListener('submit', function(e) {
+            const subject = document.getElementById('subject').value.trim();
+            const content = $('#content').summernote('code');
+            
+            if (!subject) {
+                e.preventDefault();
+                alert('Please enter a subject line for your campaign.');
+                return false;
+            }
+            
+            if (!content || content === '<p><br></p>') {
+                e.preventDefault();
+                alert('Please enter content for your campaign.');
+                return false;
+            }
+            
+            // Confirm before sending
+            if (e.submitter.value === 'send') {
+                if (!confirm('Are you sure you want to send this campaign to all active subscribers?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
