@@ -12,14 +12,20 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-here-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-# Allowed hosts configuration for Vercel
+# Allowed hosts configuration
+# ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
 ALLOWED_HOSTS = [
     '.vercel.app', 
     '.now.sh', 
     '127.0.0.1',
+    'localhost', 
     'localhost',
-    '*'  # Allow all hosts for Vercel deployment
+    'carecove.vercel.app'  # Replace with your actual domain
 ]
+
+# Add wildcard for development
+if DEBUG:
+    ALLOWED_HOSTS.append('.vercel.app')
 
 # Application definition
 INSTALLED_APPS = [
@@ -29,8 +35,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Phase 1: Core apps that work together (cart depends on shop)
     'shop',
     'cart',
+    # Phase 2: Independent apps (add these back gradually)
     'accounts',
     'testimonials',
     'newsletter',
@@ -78,11 +86,7 @@ WSGI_APPLICATION = 'carecove.wsgi.application'
 # Default to SQLite for development, but support PostgreSQL for production
 DATABASE_URL = config('DATABASE_URL', default=None)
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.ngrok-free.app',
-    'https://*.vercel.app',
-    'https://*.now.sh',
-]
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app',]
 
 if DATABASE_URL:
     # Production database (PostgreSQL via DATABASE_URL)
@@ -136,9 +140,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-
-# Static files storage for Vercel
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -291,8 +292,6 @@ REST_FRAMEWORK = {
 }
 
 # Path to wkhtmltopdf executable for PDF generation
-# Note: wkhtmltopdf is not available on Vercel serverless functions
-# Consider using alternative PDF generation methods like reportlab or weasyprint
-# WKHTMLTOPDF_PATH = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+WKHTMLTOPDF_PATH = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
 
 PESAPAL_IPN_ID = config('PESAPAL_IPN_ID', default=None)

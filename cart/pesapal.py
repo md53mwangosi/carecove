@@ -8,8 +8,20 @@ import os
 logger = logging.getLogger(__name__)
 
 # Configure pdfkit to use the wkhtmltopdf executable path
-WKHTMLTOPDF_PATH = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
-pdfkit_config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
+# For Vercel/Linux deployment, wkhtmltopdf is not available, so we'll use xhtml2pdf instead
+try:
+    # Try to find wkhtmltopdf in system PATH first
+    import shutil
+    wkhtmltopdf_path = shutil.which('wkhtmltopdf')
+    if wkhtmltopdf_path:
+        pdfkit_config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+    else:
+        # Fallback - disable pdfkit for serverless environments like Vercel
+        pdfkit_config = None
+        logger.warning("wkhtmltopdf not found, PDF generation will use xhtml2pdf instead")
+except Exception as e:
+    pdfkit_config = None
+    logger.warning(f"Could not configure pdfkit: {e}. Using xhtml2pdf instead.")
 
 from xhtml2pdf import pisa
 from io import BytesIO
